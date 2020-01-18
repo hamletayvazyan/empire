@@ -27,22 +27,22 @@ body {
     background: rgba(0,0,0,0.5);
     display: flex;
 }
-.left .item::before {
+.l.item::before {
     content: ' \2020';
     display: block;
 }
-.right .item::before{
+.r.item::before{
     content: ' \21AF';
     display: block;
 }
 .left::after, .right::after {
     content: attr(data-count);
 }
-.item::before,.item::before{
+.item::before{
     animation: rotateAround 4s infinite linear;
 }
 
-.item, .item {
+.item {
     font-size: 30px;
     cursor: pointer;
     height: min-content;

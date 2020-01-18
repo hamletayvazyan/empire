@@ -10,10 +10,10 @@
 <div class="main">
     <div class="container">
         <div class="left initial run" data-count="1">
-            <span class="item"></span>
+            <span class="l item"></span>
         </div>
         <div class="right initial run" data-count="1">
-            <span class="item"></span>
+            <span class="r item"></span>
         </div>
         <div class="left initial" ></div>
         <div class="right initial" ></div>
@@ -27,7 +27,8 @@
         var counts = [];
         var canMove = false;
         var clonedItems = 1;
-        var itemId = 'item'+clonedItems;
+        var itemId;
+        var selectedArea;
         var initialTimer = setTimeout(function initial() {
             count += 1;
             $('.run').attr('data-count', count);
@@ -37,16 +38,30 @@
         $('.run').children('span').mousedown(function (e) {
             canMove = true;
             clonedItems += 1;
+            itemId = 'item'+clonedItems;
+            let classNames = e.target.className;
+            // let parentClass = e.target.parentNode.className.indexOf('left') !== -1 ? 'left' : 'right';
+            // $('body').addClass(parentClass);
             $('<span/>', {
-                class: 'item absolute',
+                class: classNames+' absolute',
                 id: itemId
             }).appendTo('body');
             $('#' + itemId).css({top: e.pageY, left: e.pageX})
         });
         $(document).mouseup(function (e) {
+            // console.log(e);
+            // let checkingClass = e.target.className.indexOf('run');
             console.log(e);
-            let checkingClass = e.target.className.indexOf('run');
-            console.log(checkingClass);
+            console.log(selectedArea);
+            if (selectedArea){
+                selectedArea.append($('#' + itemId));
+                selectedArea.addClass('run');
+                if (selectedArea.hasClass('run')){
+                    selectedArea.attr('data-count', count);
+                }
+                $('#' + itemId).removeClass('absolute')
+            }
+            $('body').removeClass();
             canMove = false;
         });
         $(document).mousemove(function (e) {
@@ -55,6 +70,7 @@
         });
         $('.initial').mouseenter(function () {
             if(!canMove) return;
+            selectedArea = $(this);
             console.log($(this));
         })
     })
