@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Empire War</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<div class="main">
+    <div class="container">
+        <div class="left initial run" data-count="1">
+            <span class="item"></span>
+        </div>
+        <div class="right initial run" data-count="1">
+            <span class="item"></span>
+        </div>
+        <div class="left initial" ></div>
+        <div class="right initial" ></div>
+    </div>
+</div>
+
+<script src="jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        var count = 1;
+        var counts = [];
+        var canMove = false;
+        var clonedItems = 1;
+        var itemId = 'item'+clonedItems;
+        var initialTimer = setTimeout(function initial() {
+            count += 1;
+            $('.run').attr('data-count', count);
+            initialTimer = setTimeout(initial, 1500);
+        }, 1500);
+
+        $('.run').children('span').mousedown(function (e) {
+            canMove = true;
+            clonedItems += 1;
+            $('<span/>', {
+                class: 'item absolute',
+                id: itemId
+            }).appendTo('body');
+            $('#' + itemId).css({top: e.pageY, left: e.pageX})
+        });
+        $(document).mouseup(function (e) {
+            console.log(e);
+            let checkingClass = e.target.className.indexOf('run');
+            console.log(checkingClass);
+            canMove = false;
+        });
+        $(document).mousemove(function (e) {
+            if(!canMove) return;
+            $('#' + itemId).css({top: e.pageY, left: e.pageX})
+        });
+        $('.initial').mouseenter(function () {
+            if(!canMove) return;
+            console.log($(this));
+        })
+    })
+</script>
+</body>
+</html>
