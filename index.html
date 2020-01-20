@@ -9,39 +9,42 @@
 
 <div class="main">
     <div class="container">
-        <div class="left initial run" data-count="1">
+        <div class="left initial run" data-count="1" id="itemX">
             <span class="l item"></span>
         </div>
-        <div class="right initial run" data-count="1">
+        <div class="right initial run" data-count="1" id="itemY">
             <span class="r item"></span>
         </div>
-        <div class="left initial" ></div>
-        <div class="right initial" ></div>
+        <div class="initial"></div>
+        <div class="initial"></div>
     </div>
 </div>
 
 <script src="jquery.js"></script>
 <script>
     $(document).ready(function () {
-        var count = 1;
-        var counts = [];
         var canMove = false;
-        var clonedItems = 1;
+        var clonedItems = 0;
         var itemId;
         var selectedArea;
+        var selectedItemParent;
+        var divide;
+
         var initialTimer = setTimeout(function initial() {
-            count += 1;
-            $('.run').attr('data-count', count);
+            $('.run').each(function (i, e) {
+                let count = +$(this).attr('data-count');
+                count++;
+                $(this).attr('data-count', count);
+            });
             initialTimer = setTimeout(initial, 1500);
         }, 1500);
 
         $('.run').children('span').mousedown(function (e) {
+            selectedItemParent = $(this).parent();
             canMove = true;
             clonedItems += 1;
             itemId = 'item'+clonedItems;
             let classNames = e.target.className;
-            // let parentClass = e.target.parentNode.className.indexOf('left') !== -1 ? 'left' : 'right';
-            // $('body').addClass(parentClass);
             $('<span/>', {
                 class: classNames+' absolute',
                 id: itemId
@@ -50,19 +53,25 @@
         });
         $(document).mouseup(function (e) {
             // console.log(e);
-            // let checkingClass = e.target.className.indexOf('run');
-            console.log(e);
-            console.log(selectedArea);
+            // console.log(selectedArea);
+            console.log(selectedItemParent.attr('data-count'));
+            divide = +selectedItemParent.attr('data-count')%2 === 0 ? +selectedItemParent.attr('data-count')/2 : (+selectedItemParent.attr('data-count')+1)/2;
+            selectedItemParent.attr('data-count', divide);
             if (selectedArea){
+                selectedArea.removeClass('active-border');
                 selectedArea.append($('#' + itemId));
                 selectedArea.addClass('run');
-                if (selectedArea.hasClass('run')){
-                    selectedArea.attr('data-count', count);
+                if (!selectedArea.attr('data-count')){
+                    selectedArea.attr('data-count', divide);
+                } else {
+                    let increment = +selectedArea.attr('data-count')+divide;
+                    selectedArea.attr('data-count', increment);
                 }
                 $('#' + itemId).removeClass('absolute')
             }
-            $('body').removeClass();
             canMove = false;
+            selectedArea = undefined;
+            selectedItemParent = undefined;
         });
         $(document).mousemove(function (e) {
             if(!canMove) return;
@@ -70,9 +79,10 @@
         });
         $('.initial').mouseenter(function () {
             if(!canMove) return;
+            $(this).addClass('active-border');
             selectedArea = $(this);
-            console.log($(this));
-        })
+            // console.log('mouse enter: ',$(this));
+        });
     })
 </script>
 </body>
