@@ -36,12 +36,13 @@
                 count++;
                 $(this).attr('data-count', count);
             });
-            initialTimer = setTimeout(initial, 1500);
-        }, 1500);
+            initialTimer = setTimeout(initial, 800);
+        }, 800);
 
         $('.run').children('span').mousedown(function (e) {
-            selectedItemParent = $(this).parent();
+            e.preventDefault();
             canMove = true;
+            selectedItemParent = $(this).parent();
             clonedItems += 1;
             itemId = 'item'+clonedItems;
             let classNames = e.target.className;
@@ -49,40 +50,55 @@
                 class: classNames+' absolute',
                 id: itemId
             }).appendTo('body');
-            $('#' + itemId).css({top: e.pageY, left: e.pageX})
+            $('#' + itemId).css({top: e.pageY, left: e.pageX});
+
         });
         $(document).mouseup(function (e) {
+            e.preventDefault();
             // console.log(e);
             // console.log(selectedArea);
-            console.log(selectedItemParent.attr('data-count'));
+            // console.log(selectedItemParent.attr('data-count'));
             divide = +selectedItemParent.attr('data-count')%2 === 0 ? +selectedItemParent.attr('data-count')/2 : (+selectedItemParent.attr('data-count')+1)/2;
-            selectedItemParent.attr('data-count', divide);
             if (selectedArea){
-                selectedArea.removeClass('active-border');
-                selectedArea.append($('#' + itemId));
-                selectedArea.addClass('run');
-                if (!selectedArea.attr('data-count')){
-                    selectedArea.attr('data-count', divide);
+                // console.log(selectedArea.hasClass('run'),selectedArea);
+                if (!selectedArea.hasClass('run')){
+                    selectedItemParent.attr('data-count', divide);
+                    selectedArea.removeClass('active-border');
+                    selectedArea.append($('#' + itemId));
+                    selectedArea.addClass('run');
+                    if (!selectedArea.attr('data-count')){
+                        selectedArea.attr('data-count', divide);
+                    } else {
+                        let increment = +selectedArea.attr('data-count')+divide;
+                        selectedArea.attr('data-count', increment);
+                    }
+                    $('#' + itemId).removeClass('absolute')
                 } else {
-                    let increment = +selectedArea.attr('data-count')+divide;
-                    selectedArea.attr('data-count', increment);
+                    console.log(selectedArea.children('span'), selectedArea.children('span').attr('class'));
+                    $('#' + itemId).remove();
                 }
-                $('#' + itemId).removeClass('absolute')
+            } else {
+                $('#' + itemId).remove();
             }
             canMove = false;
             selectedArea = undefined;
             selectedItemParent = undefined;
         });
         $(document).mousemove(function (e) {
+            e.preventDefault();
             if(!canMove) return;
             $('#' + itemId).css({top: e.pageY, left: e.pageX})
         });
-        $('.initial').mouseenter(function () {
-            if(!canMove) return;
-            $(this).addClass('active-border');
-            selectedArea = $(this);
-            // console.log('mouse enter: ',$(this));
-        });
+        $('.initial').on({
+            mouseenter: function (e) {
+                e.preventDefault();
+                if(!canMove) return;
+                if ($(this).attr('id') === undefined){
+                    $(this).addClass('active-border');
+                    selectedArea = $(this);
+                }
+            }
+        })
     })
 </script>
 </body>
