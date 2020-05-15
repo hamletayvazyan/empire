@@ -26,79 +26,105 @@
         var canMove = false;
         var clonedItems = 0;
         var itemId;
-        var selectedArea;
         var selectedItemParent;
-        var divide;
-
         var initialTimer = setTimeout(function initial() {
             $('.run').each(function (i, e) {
                 let count = +$(this).attr('data-count');
                 count++;
                 $(this).attr('data-count', count);
             });
-            initialTimer = setTimeout(initial, 800);
-        }, 800);
+            initialTimer = setTimeout(initial, 1000);
+        }, 1000);
 
-        $('.run').children('span').mousedown(function (e) {
+        $('.run').children('span').click(function (e) {
             e.preventDefault();
-            canMove = true;
-            selectedItemParent = $(this).parent();
-            clonedItems += 1;
-            itemId = 'item'+clonedItems;
-            let classNames = e.target.className;
-            $('<span/>', {
-                class: classNames+' absolute',
-                id: itemId
-            }).appendTo('body');
-            $('#' + itemId).css({top: e.pageY, left: e.pageX});
-
-        });
-        $(document).mouseup(function (e) {
-            e.preventDefault();
-            // console.log(e);
-            // console.log(selectedArea);
-            // console.log(selectedItemParent.attr('data-count'));
-            divide = +selectedItemParent.attr('data-count')%2 === 0 ? +selectedItemParent.attr('data-count')/2 : (+selectedItemParent.attr('data-count')+1)/2;
-            if (selectedArea){
-                // console.log(selectedArea.hasClass('run'),selectedArea);
-                if (!selectedArea.hasClass('run')){
-                    selectedItemParent.attr('data-count', divide);
-                    selectedArea.removeClass('active-border');
-                    selectedArea.append($('#' + itemId));
-                    selectedArea.addClass('run');
-                    if (!selectedArea.attr('data-count')){
-                        selectedArea.attr('data-count', divide);
-                    } else {
-                        let increment = +selectedArea.attr('data-count')+divide;
-                        selectedArea.attr('data-count', increment);
-                    }
-                    $('#' + itemId).removeClass('absolute')
-                } else {
-                    console.log(selectedArea.children('span'), selectedArea.children('span').attr('class'));
-                    $('#' + itemId).remove();
-                }
-            } else {
-                $('#' + itemId).remove();
-            }
-            canMove = false;
-            selectedArea = undefined;
-            selectedItemParent = undefined;
-        });
-        $(document).mousemove(function (e) {
-            e.preventDefault();
-            if(!canMove) return;
-            $('#' + itemId).css({top: e.pageY, left: e.pageX})
+            selectItemToMove($(this));
         });
         $('.initial').on({
+            click: function (e) {
+                e.preventDefault();
+                if(!canMove) {
+                    selectItemToMove($(this).children('span'));
+                } else {
+                    if ($(this).attr('id') === undefined){
+                        $(this).addClass('active-border');
+                        calcValues($(this));
+                    }
+                }
+            },
             mouseenter: function (e) {
                 e.preventDefault();
                 if(!canMove) return;
                 if ($(this).attr('id') === undefined){
                     $(this).addClass('active-border');
-                    selectedArea = $(this);
+                }
+            },
+            mouseleave: function (e) {
+                e.preventDefault();
+                if(!canMove) return;
+                if ($(this).hasClass('active-border')){
+                    $(this).removeClass('active-border');
                 }
             }
         })
+        function selectItemToMove(selected) {
+            if(canMove) return;
+            selectedItemParent = $(selected).parent();
+            clonedItems += 1;
+            itemId = 'item'+clonedItems;
+            let classNames = $(selected).attr('class');
+            $('<span/>', {
+                class: classNames,
+                id: itemId
+            }).appendTo('body');
+            // $('#' + itemId).css({top: e.pageY, left: e.pageX});
+            canMove = true;
+        }
+        function calcValues(selectedArea) {
+            const createdItem = $('#' + itemId);
+            const divide = +selectedItemParent.attr('data-count')%2 === 0 ? +selectedItemParent.attr('data-count')/2 : (+selectedItemParent.attr('data-count')+1)/2;
+            selectedItemParent.attr('data-count', divide);
+            if (selectedArea){
+                if (!selectedArea.hasClass('run')){
+                    selectedArea.removeClass('active-border');
+                    selectedArea.append(createdItem);
+                    selectedArea.addClass('run');
+                    if (!selectedArea.attr('data-count')){
+                        selectedArea.attr('data-count', divide);
+                    } else {
+                        const increment = +selectedArea.attr('data-count')+divide;
+                        selectedArea.attr('data-count', increment);
+                    }
+                    createdItem.removeClass('absolute')
+                } else {
+                    if (createdItem.attr('class') === selectedArea.children('span').attr('class')) {
+                        const increment = +selectedArea.attr('data-count')+divide;
+                        selectedArea.attr('data-count', increment);
+                        createdItem.remove();
+                    } else {
+                        const decrement = +selectedArea.attr('data-count')-divide;
+                        switch (true) {
+                            case decrement>=0:
+                                selectedArea.attr('data-count', decrement)
+                                createdItem.remove();
+                                break;
+                            case decrement<0:
+                                decrement = -decrement;
+                                selectedArea.attr('data-count', decrement);
+                                selectedArea.html(createdItem);
+                                break;
+                        }
+                    }
+                }
+            } else {
+                createdItem.remove();
+            }
+            if ($(selectedArea).hasClass('active-border')){
+                $(selectedArea).removeClass('active-border');
+            }
+            canMove = false;
+            selectedItemParent = undefined;
+        }
     })
 </script>
 </body>
