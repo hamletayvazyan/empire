@@ -1,0 +1,84 @@
+$(document).ready(function () {
+    let clicked = false;
+    let initialPosition = 0;
+    $(document).on({
+        click: function (e) {
+            clicked = !clicked;
+            if (clicked && $('#mouseFollow').length === 0){
+                $('<div />', {
+                    class: 'mouse-follow',
+                    id: 'mouseFollow'
+                }).appendTo($('body'));
+            } else {
+                $('#mouseFollow').remove();
+            }
+            if ($('#mouseFollow').length > 0) {
+                $('#mouseFollow').css({top: e.pageY-25, left: e.pageX-25, width: 50})
+                initialPosition = $('#mouseFollow').position();
+            }
+        },
+        mousemove: function (e) {
+            if (clicked) {
+                let calcRotate = angle(initialPosition.left, initialPosition.top, e.pageX, e.pageY),
+                    totalWidth,
+                    direction = getDirection(initialPosition.left, initialPosition.top, e.pageX, e.pageY);
+                totalWidth = calcWidth(initialPosition.left, initialPosition.top, e.pageX, e.pageY, direction);
+                $('#mouseFollow').css({
+                    'width':  totalWidth+'px',
+                    'transform-origin': 'left center',
+                    'transform': 'rotate('+calcRotate+'deg)'
+                })
+            }
+        }
+    })
+
+    function angle(cx, cy, ex, ey) {
+        var dy = ey - cy;
+        var dx = ex - cx;
+        var theta = Math.atan2(dy, dx); // range (-PI, PI]
+        theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+        //if (theta < 0) theta = 360 + theta; // range [0, 360)
+        return theta;
+    }
+    function getDirection(cx, cy, ex, ey) {
+        switch (true) {
+            case cx >= ex && cy >= ey: // mouse is on left top part of our selected point
+                return {left: true, top: true}
+            case cx >= ex && cy <= ey: // mouse is on left bottom part of our selected point
+                return {left: true, top: false}
+            case cx <= ex && cy >= ey: // mouse is on right top part of our selected point
+                return {left: false, top: true}
+            case cx <= ex && cy <= ey: // mouse is on right bottom part of our selected point
+                return {left: false, top: false}
+        }
+    }
+    function calcWidth(cx, cy, ex, ey, dir) {
+        let finalWidth,w,h;
+        switch (true) {
+            case dir.left && dir.top: // left top
+                w = cx - ex;
+                h = cy - ey;
+                finalWidth = calcDiagonal(w,h)
+                break;
+            case dir.left && !dir.top: // left bot
+                w = cx - ex;
+                h = ey - cy;
+                finalWidth = calcDiagonal(w,h)
+                break;
+            case !dir.left && dir.top: // right top
+                w = ex - cx;
+                h = cy - ey;
+                finalWidth = calcDiagonal(w,h)
+                break;
+            case !dir.left && !dir.top: // right bot
+                w = ex - cx;
+                h = ey - cy;
+                finalWidth = calcDiagonal(w,h)
+                break;
+        }
+        return finalWidth;
+    }
+    function calcDiagonal(x,y) {
+        return Math.round(Math.sqrt(Math.pow(x,2)+Math.pow(y,2)));
+    }
+})

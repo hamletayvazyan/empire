@@ -31,7 +31,8 @@ $(document).ready(function () {
     function appendAction(selectedArea) {
         // console.log('second action');
         const createdItem = $('#' + itemId);
-        const divide = +selectedItemParent.attr('data-count') % 2 === 0 ? +selectedItemParent.attr('data-count') / 2 : (+selectedItemParent.attr('data-count') + 1) / 2;
+        const divide = +selectedItemParent.attr('data-count') % 2 === 0
+            ? +selectedItemParent.attr('data-count') / 2 : (+selectedItemParent.attr('data-count') + 1) / 2;
         selectedItemParent.attr('data-count', divide);
         if (selectedArea) {
             if (!selectedArea.hasClass('run')) {
